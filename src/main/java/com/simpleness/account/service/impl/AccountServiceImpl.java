@@ -1,6 +1,8 @@
 package com.simpleness.account.service.impl;
 
+import com.simpleness.account.common.Constants;
 import com.simpleness.account.common.PublicUtil;
+import com.simpleness.account.entity.AccountEntity;
 import com.simpleness.account.service.AccountService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +11,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -30,6 +34,7 @@ public class AccountServiceImpl implements AccountService {
 
     private static Scanner scanner = new Scanner(System.in);
 
+    private List<AccountEntity> accountEntityList = new ArrayList<AccountEntity>();
     long acountMoney = 0L;
 
     @Override
@@ -78,8 +83,8 @@ public class AccountServiceImpl implements AccountService {
 //            System.exit(0);
             SpringApplication.exit(applicationContext);
 
-        } catch(Exception e) {
-            PublicUtil.getStackTraceInfo(e);
+        } catch (Exception e) {
+            logger.error(PublicUtil.getStackTraceInfo(e));
         }
 
     }
@@ -101,30 +106,88 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public String showAccountDtl() {
 
-        System.out.printf("现金额共：%d\r\n", this.acountMoney);
-        return null;
+        StringBuffer outSb = new StringBuffer();
+        int index = 0;
+
+        // 标题
+        outSb.append("序号").append(Constants.ACCOUNT_SEPARATOR)
+                .append("类别").append(Constants.ACCOUNT_SEPARATOR)
+                .append("金额").append(Constants.ACCOUNT_SEPARATOR)
+                .append("说明").append("\n");
+
+        // 详细信息
+        for (AccountEntity accountEntity : accountEntityList) {
+            outSb.append(index).append(Constants.ACCOUNT_SEPARATOR)
+                    .append(accountEntity.getLabel()).append(Constants.ACCOUNT_SEPARATOR)
+                    .append(accountEntity.getAcountMoney()).append(Constants.ACCOUNT_SEPARATOR)
+                    .append(accountEntity.getAccountMsg());
+            outSb.append("\n");
+
+            index++;
+        }
+        System.out.println(outSb.toString());
+        return outSb.toString();
     }
 
     @Override
     public long addAccount() {
+        AccountEntity accountEntity = new AccountEntity(Constants.ACCOUNT_LABEL_ADD);
 
         System.out.print("请输入收入的金额：");
         long money = inputMenoy();
-        this.acountMoney = this.acountMoney + money;
+        accountEntity.setAcountMoney(this.acountMoney + money);
+
+        System.out.print("本次收入说明：");
+        accountEntity.setAccountMsg(inputStr());
+
+        accountEntityList.add(accountEntity);
+
+        System.out.println("录入成功");
+
         return this.acountMoney;
     }
 
     @Override
     public long subtractAccount() {
+        AccountEntity accountEntity = new AccountEntity(Constants.ACCOUNT_LABEL_SUBTRACT);
+
         System.out.print("请输入支出的金额：");
         long money = inputMenoy();
-        this.acountMoney = this.acountMoney - money;
+        accountEntity.setAcountMoney(this.acountMoney - money);
+
+        System.out.print("本次收入说明：");
+        accountEntity.setAccountMsg(inputStr());
+
+        accountEntityList.add(accountEntity);
+
+        System.out.println("录入成功");
+
         return this.acountMoney;
     }
 
     @Override
     public long inputMenoy() {
-        return scanner.nextLong();
+        long result = 0L;
+
+        while (true) {
+            try {
+                String inputStr = scanner.next();
+                result = Long.parseLong(inputStr);
+
+                // 如果转换成功，则说明符合数值
+                break;
+            } catch (Exception e) {
+                System.out.print("请输入正确的金额：");
+                logger.error(PublicUtil.getStackTraceInfo(e));
+            }
+
+        }
+        return result;
+    }
+
+    @Override
+    public String inputStr() {
+        return scanner.next();
     }
 
     @Override

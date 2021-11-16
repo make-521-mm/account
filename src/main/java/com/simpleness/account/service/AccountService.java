@@ -19,6 +19,9 @@ public interface AccountService {
     /** 获取输入的金额 */
     public long inputMenoy();
 
+    /** 获取输入的说明 */
+    public String inputStr();
+
     /** 退出 */
     public boolean exitMenu();
 
