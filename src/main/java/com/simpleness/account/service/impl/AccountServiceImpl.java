@@ -35,11 +35,11 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void manageAccount() {
         char input = '1';
-        boolean exitB = false;
+        boolean notExitB = true;
         boolean selectErrorB = false;
         try {
 
-            while(true){
+            while(notExitB){
                 // 没有选择错误时，才显示菜单
                 if (!selectErrorB) {
                     showMenu();
@@ -63,17 +63,13 @@ public class AccountServiceImpl implements AccountService {
                         subtractAccount();
                         break;
                     case '4':
-                        exitB = exitMenu();
+                        // 是否退出
+                        notExitB = !exitMenu();
                         break;
                     default:
                         selectError();
                         selectErrorB = true;
 
-                }
-
-                // 判断是否选择的退出
-                if (exitB) {
-                    break;
                 }
 
             }
